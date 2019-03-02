@@ -10,6 +10,6 @@ import retrofit2.http.Query;
 public interface WeatherService {
 
     @GET(Constants.RELATIVE_URL)
-    Single<WeatherResults> getWeatherForLocation(@Query("lat") float latitude,
-                                                 @Query("lon") float longitude);
+    Single<WeatherResults> getWeatherForLocation(@Query("lat") double latitude,
+                                                 @Query("lon") double longitude);
 }
