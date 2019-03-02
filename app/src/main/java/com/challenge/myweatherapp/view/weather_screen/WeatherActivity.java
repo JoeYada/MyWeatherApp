@@ -1,6 +1,8 @@
-package com.challenge.myweatherapp;
+package com.challenge.myweatherapp.view.weather_screen;
 
 import android.os.Bundle;
+
+import com.challenge.myweatherapp.R;
 
 import androidx.appcompat.app.AppCompatActivity;
 
