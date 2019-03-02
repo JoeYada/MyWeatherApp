@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">MyWeatherApp</string>
+    <string name="forecats_text">Forecasts</string>
+    <string name="temperature_string">%s˚C</string>
+    <string name="weather_message">Today it will be %s with a high of %s˚C and a low of %s˚C"</string>
 </resources>
