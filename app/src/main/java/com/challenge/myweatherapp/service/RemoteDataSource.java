@@ -1,6 +1,7 @@
 package com.challenge.myweatherapp.service;
 
 import com.challenge.myweatherapp.model.WeatherResponse;
+import com.challenge.myweatherapp.model.WeatherResult;
 
 import javax.inject.Inject;
 
@@ -16,7 +17,12 @@ public class RemoteDataSource implements DataSource {
     }
 
     @Override
-    public Single<WeatherResponse> getWeatherForLocation(double latitude, double longitude) {
-        return weatherService.getWeatherForLocation(latitude, longitude);
+    public Single<WeatherResult> getCurrentWeatherForLocation(double latitude, double longitude) {
+        return weatherService.getCurrentWeatherForLocation(latitude, longitude);
+    }
+
+    @Override
+    public Single<WeatherResponse> getForecastsForLocation(double latitude, double longitude) {
+        return weatherService.getForecastsForLocation(latitude, longitude);
     }
 }
