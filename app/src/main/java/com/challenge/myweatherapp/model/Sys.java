@@ -6,48 +6,37 @@ import com.google.gson.annotations.SerializedName;
 
 public class Sys {
 
-    @SerializedName("message")
+    @SerializedName("pod")
     @Expose
-    private double message;
-    @SerializedName("country")
-    @Expose
-    private String country;
-    @SerializedName("sunrise")
-    @Expose
-    private int sunrise;
-    @SerializedName("sunset")
-    @Expose
-    private int sunset;
+    private String pod;
 
-    public double getMessage() {
-        return message;
+    /**
+     * No args constructor for use in serialization
+     * 
+     */
+    public Sys() {
     }
 
-    public void setMessage(double message) {
-        this.message = message;
+    /**
+     * 
+     * @param pod
+     */
+    public Sys(String pod) {
+        super();
+        this.pod = pod;
     }
 
-    public String getCountry() {
-        return country;
+    public String getPod() {
+        return pod;
     }
 
-    public void setCountry(String country) {
-        this.country = country;
+    public void setPod(String pod) {
+        this.pod = pod;
     }
 
-    public int getSunrise() {
-        return sunrise;
+    public Sys withPod(String pod) {
+        this.pod = pod;
+        return this;
     }
 
-    public void setSunrise(int sunrise) {
-        this.sunrise = sunrise;
-    }
-
-    public int getSunset() {
-        return sunset;
-    }
-
-    public void setSunset(int sunset) {
-        this.sunset = sunset;
-    }
 }
