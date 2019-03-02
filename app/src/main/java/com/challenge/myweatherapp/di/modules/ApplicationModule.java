@@ -9,7 +9,7 @@ import dagger.Binds;
 import dagger.Module;
 
 @Module(includes = {ViewModelModule.class,
-        NetworkModule.class,
+        DataSourceModule.class,
         SchedulerProviderModule.class})
 public abstract class ApplicationModule {
 
