@@ -1,22 +1,25 @@
 package com.challenge.myweatherapp.view.weather_screen;
 
-import android.util.Log;
-
 import com.challenge.myweatherapp.base.BaseViewModel;
 import com.challenge.myweatherapp.common.SchedulerProvider;
 import com.challenge.myweatherapp.model.WeatherResponse;
+import com.challenge.myweatherapp.model.WeatherResult;
 import com.challenge.myweatherapp.service.DataSource;
 
 import javax.inject.Inject;
 
 import androidx.lifecycle.MutableLiveData;
+import io.reactivex.Completable;
 
 public class WeatherViewModel extends BaseViewModel {
 
     private final DataSource dataSource;
+    private double latitude;
+    private double longitude;
 
-    private MutableLiveData<WeatherResponse> weatherResultsMutableLiveData = new MutableLiveData<>();
-    private MutableLiveData<Boolean> isLoading = new MutableLiveData<>();
+    private MutableLiveData<WeatherResponse> weatherForecastsMutableLiveData = new MutableLiveData<>();
+    private MutableLiveData<WeatherResult> currentWeatherMutableLiveData = new MutableLiveData<>();
+
     private MutableLiveData<Boolean> showErrorToast = new MutableLiveData<>();
 
     @Inject
@@ -25,42 +28,76 @@ public class WeatherViewModel extends BaseViewModel {
         this.dataSource = dataSource;
     }
 
-    public void getWeatherForLocation(double latitude, double longitude) {
-        compositeDisposable.add(dataSource.getWeatherForLocation(latitude, longitude)
-                .subscribeOn(schedulerProvider.io())
-                .observeOn(schedulerProvider.ui())
-                .doOnSubscribe(data -> setIsLoading(true))
-                .doOnSuccess(data -> setIsLoading(false))
-                .doOnError(data -> {
-                    setIsLoading(false);
-                    setShowErrorToast();
-                })
-                .subscribe(this::setWeatherResults, throwable -> Log.d("TAG_1", throwable.getMessage())));
+    public void getWeather() {
+        getWeatherForCurrentLocation()
+                .andThen(getForecastsForLocation())
+                .subscribe();
+    }
+
+    public Completable getForecastsForLocation() {
+        return Completable.create(emitter -> {
+            compositeDisposable.add(dataSource.getForecastsForLocation(latitude, longitude)
+                    .subscribeOn(schedulerProvider.io())
+                    .observeOn(schedulerProvider.ui())
+                    .doOnError(data -> {
+                        showErrorToast();
+                        emitter.onError(new Throwable());
+                    })
+                    .subscribe(weatherResponse -> {
+                        setForecastResonse(weatherResponse);
+                        emitter.onComplete();
+                    }, emitter::onError));
+        });
 
     }
 
-    private void setShowErrorToast() {
+    public Completable getWeatherForCurrentLocation() {
+        return Completable.create(emitter -> {
+            compositeDisposable.add(dataSource.getCurrentWeatherForLocation(latitude, longitude)
+                    .subscribeOn(schedulerProvider.io())
+                    .observeOn(schedulerProvider.ui())
+                    .doOnError(data -> {
+                        showErrorToast();
+                        emitter.onError(new Throwable());
+                    })
+                    .subscribe(weatherResult -> {
+                        setCurrentWeatherMutableLiveData(weatherResult);
+                        emitter.onComplete();
+
+                    }, emitter::onError));
+        });
+    }
+
+    private void showErrorToast() {
         this.showErrorToast.setValue(true);
     }
 
-    public void setIsLoading(boolean isLoading) {
-        this.isLoading.setValue(isLoading);
+
+    public void setForecastResonse(WeatherResponse weatherResults) {
+        weatherForecastsMutableLiveData.setValue(weatherResults);
     }
 
-    public void setWeatherResults(WeatherResponse weatherResults) {
-        weatherResultsMutableLiveData.setValue(weatherResults);
+    public void setCurrentWeatherMutableLiveData(WeatherResult weatherResult) {
+        currentWeatherMutableLiveData.setValue(weatherResult);
     }
 
-    public MutableLiveData<WeatherResponse> getWeatherResultsMutableLiveData() {
-        return weatherResultsMutableLiveData;
+    public MutableLiveData<WeatherResponse> getWeatherForecastsMutableLiveData() {
+        return weatherForecastsMutableLiveData;
     }
 
-    public MutableLiveData<Boolean> getIsLoading() {
-        return isLoading;
+    public MutableLiveData<WeatherResult> getCurrentWeatherMutableLiveData() {
+        return currentWeatherMutableLiveData;
     }
 
     public MutableLiveData<Boolean> getShowErrorToast() {
         return showErrorToast;
     }
 
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
 }
