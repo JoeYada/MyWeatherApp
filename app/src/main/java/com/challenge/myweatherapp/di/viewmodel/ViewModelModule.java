@@ -1,5 +1,6 @@
 package com.challenge.myweatherapp.di.viewmodel;
 
+import com.challenge.myweatherapp.common.ViewModelFactory;
 import com.challenge.myweatherapp.view.weather_screen.WeatherViewModel;
 
 import androidx.lifecycle.ViewModel;
@@ -17,5 +18,5 @@ public abstract class ViewModelModule {
     abstract ViewModel bindListViewModel(WeatherViewModel listViewModel);
 
     @Binds
-    abstract ViewModelProvider.Factory bindViewModelFactory(WeatherViewModel factory);
+    abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);
 }
