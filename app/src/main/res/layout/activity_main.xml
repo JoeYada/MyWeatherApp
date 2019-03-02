@@ -1,18 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/grayish"
     tools:context=".view.weather_screen.WeatherActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/current_weather_container"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_margin="@dimen/current_weather_container_margin"
+        android:background="@android:color/white"
+        android:orientation="vertical">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/general_margin_top"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/location_icon"
+                android:layout_width="wrap_content"
+
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_current_location" />
+
+            <TextView
+                android:id="@+id/location_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/background_dark"
+                android:textSize="@dimen/current_weather_location_text_size"
+                tools:text="London" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/general_margin_top"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/temperature_imageView"
+                android:layout_width="@dimen/image_width"
+                android:layout_height="@dimen/image_height"
+                android:layout_gravity="center_vertical"
+                tools:src="@drawable/icon_current_location" />
+
+            <TextView
+                android:id="@+id/temperature_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/background_dark"
+                android:textSize="@dimen/temperature_text_size"
+                tools:text="12" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/current_date_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/background_dark"
+                tools:text="Sunday 3 March 06:00" />
+
+            <TextView
+                android:id="@+id/weather_info_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/general_margin_top"
+                android:textColor="@android:color/background_dark"
+                tools:text="Today it will be sunny with a high of 20 and a low of 8" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/message_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/current_weather_container"
+        android:layout_marginLeft="@dimen/current_weather_container_margin"
+        android:layout_marginTop="@dimen/current_weather_container_margin"
+        android:layout_marginRight="@dimen/current_weather_container_margin"
+        android:background="@android:color/white"
+        android:padding="5dp"
+        android:textColor="@android:color/background_dark"
+        android:text="@string/forecats_text" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/message_text_view"
+        android:layout_marginLeft="@dimen/current_weather_container_margin"
+        android:layout_marginRight="@dimen/current_weather_container_margin"
+        android:background="@android:color/white">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/forcasts_recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="horizontal"
+            tools:layoutManager="LinearLayoutManager"
+            tools:listitem="@layout/recycler_view_item"
+            tools:orientation="horizontal"
+            tools:spanCount="5" />
+
+    </FrameLayout>
+
+</RelativeLayout>
