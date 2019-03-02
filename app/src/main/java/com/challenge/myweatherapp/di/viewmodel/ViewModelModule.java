@@ -15,7 +15,7 @@ public abstract class ViewModelModule {
     @Binds
     @IntoMap
     @ViewModelKey(WeatherViewModel.class)
-    abstract ViewModel bindListViewModel(WeatherViewModel listViewModel);
+    abstract ViewModel bindWeatherViewModel(WeatherViewModel listViewModel);
 
     @Binds
     abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);
