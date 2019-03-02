@@ -23,6 +23,7 @@ public class NetworkModule {
 
     @Provides
     @Singleton
+    @LoggingInterceptor
     Interceptor provideLoggingInterceptor() {
         return new HttpLoggingInterceptor()
                 .setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -30,6 +31,7 @@ public class NetworkModule {
 
     @Provides
     @Singleton
+    @NetworkInterceptor
     Interceptor provideAPIKeyInterceptor() {
         return chain -> {
             HttpUrl originalUrl = chain.request().url();
@@ -47,7 +49,7 @@ public class NetworkModule {
 
     @Provides
     @Singleton
-    OkHttpClient provideOkHttpClient( Interceptor loggingInterceptor, Interceptor apiInterceptor) {
+    OkHttpClient provideOkHttpClient(@LoggingInterceptor Interceptor loggingInterceptor, @NetworkInterceptor Interceptor apiInterceptor) {
         return new OkHttpClient.Builder()
                 .addInterceptor(loggingInterceptor)
                 .addInterceptor(apiInterceptor)
@@ -58,8 +60,10 @@ public class NetworkModule {
 
     @Singleton
     @Provides
-    Retrofit provideRetrofit() {
-        return new Retrofit.Builder().baseUrl(Constants.BASE_URL)
+    Retrofit provideRetrofit(OkHttpClient okHttpClient) {
+        return new Retrofit.Builder()
+                .baseUrl(Constants.BASE_URL)
+                .client(okHttpClient)
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
