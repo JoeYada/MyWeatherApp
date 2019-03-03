@@ -9,7 +9,7 @@ import android.widget.TextView;
 import com.challenge.myweatherapp.R;
 import com.challenge.myweatherapp.base.BaseActivity;
 import com.challenge.myweatherapp.common.ViewModelFactory;
-import com.challenge.myweatherapp.util.Constants;
+import com.challenge.myweatherapp.model.WeatherResult;
 import com.challenge.myweatherapp.util.WeatherAppUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -20,6 +20,9 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 
 public class WeatherActivity extends BaseActivity {
@@ -38,9 +41,12 @@ public class WeatherActivity extends BaseActivity {
     TextView currentDateTextView;
     @BindView(R.id.temperature_imageView)
     ImageView temperatureImageView;
+    @BindView(R.id.forcasts_recyclerView)
+    RecyclerView forecastsRecyclerView;
 
     private WeatherViewModel viewModel;
     private FusedLocationProviderClient fusedLocationProviderClient;
+    private WeatherForecastsAdapter forecastsAdapter;
 
     @Override
     protected int layoutRes() {
@@ -53,25 +59,27 @@ public class WeatherActivity extends BaseActivity {
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(WeatherViewModel.class);
 
+        initViews();
 
         getWeatherForLocation();
 
         viewModel.getWeatherForecastsMutableLiveData().observe(this, weatherResponse -> {
             locationTextView.setText(weatherResponse.getCity().getName());
+            forecastsAdapter.setWeatherResultList(weatherResponse.getList());
+
         });
 
-        viewModel.getCurrentWeatherMutableLiveData().observe(this, weatherResult -> {
-            String temperature = String.valueOf((int) weatherResult.getMain().getTemp());
-            String maxTemperature = String.valueOf((int) weatherResult.getMain().getTempMax());
-            String minTemperature = String.valueOf((int) weatherResult.getMain().getTempMin());
-            String weatherStatus = weatherResult.getWeather().get(0).getMain();
-            String imageUrl = Constants.IMAGE_URL + weatherResult.getWeather().get(0).getIcon() + ".png";
-            temperatureTextView.setText(getResources().getString(R.string.temperature_string, temperature));
-            currentDateTextView.setText(WeatherAppUtils.getCurrentDateTimeString());
-            weatherInfoTextView.setText(getResources().getString(R.string.weather_message, weatherStatus, maxTemperature, minTemperature));
-            WeatherAppUtils.loadImage(this, imageUrl, temperatureImageView);
-        });
+        viewModel.getCurrentWeatherMutableLiveData().observe(this, this::setCurrentWeather);
 
+    }
+
+    private void initViews() {
+        forecastsAdapter = new WeatherForecastsAdapter();
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        forecastsRecyclerView.setLayoutManager(layoutManager);
+        forecastsRecyclerView.addItemDecoration(new DividerItemDecoration(this,
+                DividerItemDecoration.HORIZONTAL));
+        forecastsRecyclerView.setAdapter(forecastsAdapter);
     }
 
     private void getWeatherForLocation() {
@@ -105,5 +113,16 @@ public class WeatherActivity extends BaseActivity {
                 }
                 break;
         }
+    }
+
+    private void setCurrentWeather(WeatherResult weatherResult) {
+        String temperature = String.valueOf((int) weatherResult.getMain().getTemp());
+        String maxTemperature = String.valueOf((int) weatherResult.getMain().getTempMax());
+        String minTemperature = String.valueOf((int) weatherResult.getMain().getTempMin());
+        String weatherStatus = weatherResult.getWeather().get(0).getMain();
+        temperatureTextView.setText(getResources().getString(R.string.temperature_string, temperature));
+        currentDateTextView.setText(WeatherAppUtils.getCurrentDateTimeString());
+        weatherInfoTextView.setText(getResources().getString(R.string.weather_message, weatherStatus, maxTemperature, minTemperature));
+        WeatherAppUtils.loadImage(this, WeatherAppUtils.getWeatherImageUrl(weatherResult), temperatureImageView);
     }
 }
