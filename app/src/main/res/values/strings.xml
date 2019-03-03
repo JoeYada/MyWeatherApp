@@ -3,4 +3,6 @@
     <string name="forecats_text">Forecasts</string>
     <string name="temperature_string">%s˚C</string>
     <string name="weather_message">Today it will be %s with a high of %s˚C and a low of %s˚C"</string>
+    <string name="recyclerview_item_weather_string">%s˚C, %s</string>
+    <string name="recyclerview_min_max_string">%s˚C/%s˚C</string>
 </resources>
