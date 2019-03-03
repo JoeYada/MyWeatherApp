@@ -1,7 +1,42 @@
-<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
-   xmlns:tools="http://schemas.android.com/tools"
-   android:id="@+id/imageView1"
-   android:layout_width="50dp"
-   android:layout_height="50dp"
-   android:layout_margin="5dp"
-   tools:src="@tools:sample/avatars" />
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/recyclerView_item_margin"
+    android:orientation="vertical">
+
+
+    <TextView
+        android:id="@+id/item_date_text_view"
+        android:layout_width="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/background_dark"
+        tools:text="Sun 3 March, 12:00" />
+
+    <ImageView
+        android:id="@+id/item_weather_icon"
+        android:layout_width="@dimen/image_width"
+        android:layout_height="@dimen/image_height"
+        tools:src="@drawable/icon_current_location"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="@dimen/recyclerView_item_margin" />
+
+    <TextView
+        android:id="@+id/item_weather_status_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:textColor="@android:color/background_dark"
+        tools:text="2 deg Cloudy" />
+
+    <TextView
+        android:id="@+id/item_min_max_temp_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/background_dark"
+        tools:text="15/27"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="@dimen/recyclerView_item_margin" />
+
+</LinearLayout>
