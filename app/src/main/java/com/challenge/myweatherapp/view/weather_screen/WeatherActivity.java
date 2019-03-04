@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.challenge.myweatherapp.R;
@@ -13,10 +14,12 @@ import com.challenge.myweatherapp.model.WeatherResult;
 import com.challenge.myweatherapp.util.WeatherAppUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.material.snackbar.Snackbar;
 
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
@@ -43,6 +46,8 @@ public class WeatherActivity extends BaseActivity {
     ImageView temperatureImageView;
     @BindView(R.id.forcasts_recyclerView)
     RecyclerView forecastsRecyclerView;
+    @BindView(R.id.parent_container)
+    RelativeLayout parent;
 
     private WeatherViewModel viewModel;
     private FusedLocationProviderClient fusedLocationProviderClient;
@@ -64,14 +69,21 @@ public class WeatherActivity extends BaseActivity {
         getWeatherForLocation();
 
         viewModel.getWeatherForecastsMutableLiveData().observe(this, weatherResponse -> {
-            locationTextView.setText(weatherResponse.getCity().getName());
-            forecastsAdapter.setWeatherResultList(weatherResponse.getList());
+            if (weatherResponse != null) {
+                locationTextView.setText(weatherResponse.getCity().getName());
+                forecastsAdapter.setWeatherResultList(weatherResponse.getList());
+            } else {
+                showSnackBar(R.string.error_message);
+            }
 
         });
 
         viewModel.getCurrentWeatherMutableLiveData().observe(this, this::setCurrentWeather);
 
+        viewModel.getShowSnackBarMessage().observe(this, this::showSnackBar);
+
     }
+
 
     private void initViews() {
         forecastsAdapter = new WeatherForecastsAdapter();
@@ -116,13 +128,22 @@ public class WeatherActivity extends BaseActivity {
     }
 
     private void setCurrentWeather(WeatherResult weatherResult) {
-        String temperature = String.valueOf((int) weatherResult.getMain().getTemp());
-        String maxTemperature = String.valueOf((int) weatherResult.getMain().getTempMax());
-        String minTemperature = String.valueOf((int) weatherResult.getMain().getTempMin());
-        String weatherStatus = weatherResult.getWeather().get(0).getMain();
-        temperatureTextView.setText(getResources().getString(R.string.temperature_string, temperature));
-        currentDateTextView.setText(WeatherAppUtils.getCurrentDateTimeString());
-        weatherInfoTextView.setText(getResources().getString(R.string.weather_message, weatherStatus, maxTemperature, minTemperature));
-        WeatherAppUtils.loadImage(this, WeatherAppUtils.getWeatherImageUrl(weatherResult), temperatureImageView);
+        if (weatherResult != null) {
+            String temperature = String.valueOf((int) weatherResult.getMain().getTemp());
+            String maxTemperature = String.valueOf((int) weatherResult.getMain().getTempMax());
+            String minTemperature = String.valueOf((int) weatherResult.getMain().getTempMin());
+            String weatherStatus = weatherResult.getWeather().get(0).getMain();
+            temperatureTextView.setText(getResources().getString(R.string.temperature_string, temperature));
+            currentDateTextView.setText(WeatherAppUtils.getCurrentDateTimeString());
+            weatherInfoTextView.setText(getResources().getString(R.string.weather_message, weatherStatus, maxTemperature, minTemperature));
+            WeatherAppUtils.loadImage(this, WeatherAppUtils.getWeatherImageUrl(weatherResult), temperatureImageView);
+        } else {
+            showSnackBar(R.string.error_message);
+        }
+    }
+
+
+    private void showSnackBar(@StringRes int layout) {
+        Snackbar.make(parent, layout, Snackbar.LENGTH_LONG).show();
     }
 }
