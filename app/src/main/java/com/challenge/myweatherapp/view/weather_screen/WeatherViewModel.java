@@ -1,5 +1,8 @@
 package com.challenge.myweatherapp.view.weather_screen;
 
+import android.util.Log;
+
+import com.challenge.myweatherapp.R;
 import com.challenge.myweatherapp.base.BaseViewModel;
 import com.challenge.myweatherapp.common.SchedulerProvider;
 import com.challenge.myweatherapp.model.WeatherResponse;
@@ -9,9 +12,12 @@ import com.challenge.myweatherapp.service.DataSource;
 import javax.inject.Inject;
 
 import androidx.lifecycle.MutableLiveData;
-import io.reactivex.Completable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 public class WeatherViewModel extends BaseViewModel {
+
+    public static final String TAG = "FORECASTS_TAG";
 
     private final DataSource dataSource;
     private double latitude;
@@ -20,7 +26,7 @@ public class WeatherViewModel extends BaseViewModel {
     private MutableLiveData<WeatherResponse> weatherForecastsMutableLiveData = new MutableLiveData<>();
     private MutableLiveData<WeatherResult> currentWeatherMutableLiveData = new MutableLiveData<>();
 
-    private MutableLiveData<Boolean> showErrorToast = new MutableLiveData<>();
+    private MutableLiveData<Integer> showSnackBarMessage = new MutableLiveData<>();
 
     @Inject
     public WeatherViewModel(DataSource dataSource, SchedulerProvider schedulerProvider) {
@@ -29,47 +35,30 @@ public class WeatherViewModel extends BaseViewModel {
     }
 
     public void getWeather() {
-        getWeatherForCurrentLocation()
-                .andThen(getForecastsForLocation())
-                .subscribe();
-    }
-
-    public Completable getForecastsForLocation() {
-        return Completable.create(emitter -> {
-            compositeDisposable.add(dataSource.getForecastsForLocation(latitude, longitude)
-                    .subscribeOn(schedulerProvider.io())
-                    .observeOn(schedulerProvider.ui())
-                    .doOnError(data -> {
-                        showErrorToast();
-                        emitter.onError(new Throwable());
-                    })
-                    .subscribe(weatherResponse -> {
-                        setForecastResonse(weatherResponse);
-                        emitter.onComplete();
-                    }, emitter::onError));
-        });
+        getWeatherForCurrentLocation();
+        getForecastsForLocation();
 
     }
 
-    public Completable getWeatherForCurrentLocation() {
-        return Completable.create(emitter -> {
-            compositeDisposable.add(dataSource.getCurrentWeatherForLocation(latitude, longitude)
-                    .subscribeOn(schedulerProvider.io())
-                    .observeOn(schedulerProvider.ui())
-                    .doOnError(data -> {
-                        showErrorToast();
-                        emitter.onError(new Throwable());
-                    })
-                    .subscribe(weatherResult -> {
-                        setCurrentWeatherMutableLiveData(weatherResult);
-                        emitter.onComplete();
+    public void getForecastsForLocation() {
+        compositeDisposable.add(dataSource.getForecastsForLocation(latitude, longitude)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnError(throwable -> showSnackBarMessage())
+                .subscribe(this::setForecastResonse, throwable -> Log.d(TAG, throwable.getMessage())));
 
-                    }, emitter::onError));
-        });
     }
 
-    private void showErrorToast() {
-        this.showErrorToast.setValue(true);
+    public void getWeatherForCurrentLocation() {
+        compositeDisposable.add(dataSource.getCurrentWeatherForLocation(latitude, longitude)
+                .subscribeOn(schedulerProvider.io())
+                .observeOn(schedulerProvider.ui())
+                .doOnError(throwable -> showSnackBarMessage())
+                .subscribe(this::setCurrentWeatherMutableLiveData, throwable -> Log.d(TAG, throwable.getMessage())));
+    }
+
+    private void showSnackBarMessage() {
+        this.showSnackBarMessage.setValue(R.string.error_message);
     }
 
 
@@ -89,8 +78,8 @@ public class WeatherViewModel extends BaseViewModel {
         return currentWeatherMutableLiveData;
     }
 
-    public MutableLiveData<Boolean> getShowErrorToast() {
-        return showErrorToast;
+    public MutableLiveData<Integer> getShowSnackBarMessage() {
+        return showSnackBarMessage;
     }
 
     public void setLatitude(double latitude) {
